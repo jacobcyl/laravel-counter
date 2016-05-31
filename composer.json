@@ -7,5 +7,10 @@
             "email": "cyl.jacob@gmail.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Jacobcyl\\ViewCounter\\": "src/"
+        }
+    }
 }
