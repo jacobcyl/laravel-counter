@@ -1,0 +1,11 @@
+{
+    "name": "jacobcyl/view-counter",
+    "description": "view and like counter",
+    "authors": [
+        {
+            "name": "jacobcyl",
+            "email": "cyl.jacob@gmail.com"
+        }
+    ],
+    "require": {}
+}
