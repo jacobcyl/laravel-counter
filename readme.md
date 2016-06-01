@@ -12,3 +12,7 @@ publish config file and migration files
     php artisan vendor:publish 
     php artisan migrate
 ```
+add "use ViewCounterTrait;" to your model
+```php  
+    $model->view()
+ ```
