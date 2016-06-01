@@ -27,8 +27,6 @@ class CounterSync
             return $item['class_name'].$item['action'].$item['object_id'];
         })->values()->all();
 
-        Log::debug($objects);
-
         foreach($objects as $object){
             $this->sync($object);
         }
@@ -38,7 +36,6 @@ class CounterSync
         $cacheName = $this->getCacheName($object);
         try{
             $count = Cache::get($cacheName);
-            Log::debug($cacheName.':'.$count);
             if(!empty($count)){
                 $countType = $object->action.'_counter';
                 Counter::updateOrCreate(

@@ -3,6 +3,7 @@
 namespace Jacobcyl\ViewCounter\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Jacobcyl\ViewCounter\CounterSync;
 
 class SyncCounter extends Command
@@ -45,5 +46,7 @@ class SyncCounter extends Command
         foreach($classNames as $className){
             $counterSync->syncAll($className);
         }*/
+        $this->info('Sync finished at '. date('Y-m-d'));
+        Log::info('Sync finished at '. date('Y-m-d'));
     }
 }

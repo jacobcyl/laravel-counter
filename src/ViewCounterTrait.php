@@ -10,12 +10,9 @@ namespace Jacobcyl\ViewCounter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Log;
 use Jacobcyl\ViewCounter\Models\Counter;
 
 trait ViewCounterTrait{
-    //protected $isViewCountEveryTime = false; //count for every request
-    //protected $viewCountDuration = 1;//count view duration (minutes)
     protected $counter;
     protected $cacheViewName;
     protected $cacheLikeName;
@@ -61,7 +58,11 @@ trait ViewCounterTrait{
         return true;
     }
 
-    public function tongleLike(){
+    /**
+     * toggle like
+     * @return bool isLiked
+     */
+    public function toggleLike(){
         if ( !$this->isLiked() ){
             $this->like();
         }else{
@@ -77,7 +78,10 @@ trait ViewCounterTrait{
         if(!isset($this->counter))
         {
             $class_name = $this->getClassName();
-            $this->counter = Counter::firstOrCreate(array('class_name' => $class_name, 'object_id' => $this->id, 'count_date'=>date('Y-m-d')));
+            $this->counter = Counter::where('class_name', $class_name)->where('object_id', $this->id)->orderBy('count_date', 'desc')->first();
+            if( !$this->counter ){
+                $this->counter = Counter::create(array('class_name' => $class_name, 'object_id' => $this->id, 'count_date'=>date('Y-m-d')));
+            }
         }
         return $this->counter;
     }
@@ -105,12 +109,15 @@ trait ViewCounterTrait{
             $this->cacheLikeName,
             function(){
                 $counter = $this->counter();
-
                 return $counter->like_counter ? $counter->like_counter : 0 ;
             }
         );
     }
 
+    /**
+     * record users who with action
+     * @param $action
+     */
     private function recordUser($action) {
         $data = array(
             'class_name'    => $this->getClassName(),
