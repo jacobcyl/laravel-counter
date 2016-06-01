@@ -18,6 +18,7 @@ class CreateCountersTable extends Migration
             $table->integer('object_id');
             $table->integer('view_counter');
             $table->integer('like_counter');
+            $table->date('count_date');
 
             $table->index('class_name');
             $table->index('object_id');

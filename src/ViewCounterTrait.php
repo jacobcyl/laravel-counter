@@ -32,11 +32,42 @@ trait ViewCounterTrait{
     }
 
     public function like(){
-
+        $likeKey = $this->getLikeKey();
+        $likeCount = $this->likes_count();
+        if ( !$this->isLiked() ){
+            if ( Auth::check() ){
+                $this->recordUser('like');
+            } else {
+                session([$likeKey=>time()]);
+            }
+            $res = Cache::increment($this->cacheLikeName);
+        }
+        return true;
     }
 
     public function unlike(){
+        $likeKey = $this->getLikeKey();
+        $likeCount = $this->likes_count();
+        if ( !$this->isLiked() ){
+            return false;
+        }
+        if ( Auth::check() ){
+            $isLiked = $this->user_counters()->where('user_id', Auth::user()->id)->where('action', 'like')->delete();
+        } else {
+            session([$likeKey=>null]);
+        }
+        $res = Cache::decrement($this->cacheLikeName);
 
+        return true;
+    }
+
+    public function tongleLike(){
+        if ( !$this->isLiked() ){
+            $this->like();
+        }else{
+            $this->unlike();
+        }
+        return $this->isLiked();
     }
 
     /**
@@ -46,14 +77,14 @@ trait ViewCounterTrait{
         if(!isset($this->counter))
         {
             $class_name = $this->getClassName();
-            $this->counter = Counter::firstOrCreate(array('class_name' => $class_name, 'object_id' => $this->id));
+            $this->counter = Counter::firstOrCreate(array('class_name' => $class_name, 'object_id' => $this->id, 'count_date'=>date('Y-m-d')));
         }
         return $this->counter;
     }
 
-    public function user_counter()
+    public function user_counters()
     {
-        return $this->hasOne('Jacobcyl\ViewCounter\Models\UserCounter', 'object_id')->where('class_name', $this->getClassName());
+        return $this->hasMany('Jacobcyl\ViewCounter\Models\UserCounter', 'object_id')->where('class_name', $this->getClassName());
     }
 
     public function views_count(){
@@ -68,7 +99,7 @@ trait ViewCounterTrait{
         );
     }
 
-    public function links_count() {
+    public function likes_count() {
         $this->cacheLikeName = $this->generateName('likes');
         return Cache::rememberForever(
             $this->cacheLikeName,
@@ -87,7 +118,22 @@ trait ViewCounterTrait{
             'user_id'       => Auth::user()->id,
             'action'        => $action
         );
-        $this->user_counter()->updateOrCreate([], $data);
+        $this->user_counters()->updateOrCreate(['user_id'=>Auth::user()->id], $data);
+    }
+
+    /**
+     * increase view count
+     */
+    private function incView() {
+        $viewKey = $this->getViewKey();
+
+        if ( Auth::check() ){ //user had login, record user action
+            Cache::put($viewKey.':user:'.Auth::user()->id, time(), Config::get('counter.viewCountDuration'));
+            $this->recordUser('view');
+        } else { //guest. use session
+            session([$viewKey=>time()]);
+        }
+        Cache::increment($this->cacheViewName);
     }
 
     /**
@@ -112,30 +158,26 @@ trait ViewCounterTrait{
     }
 
     /**
-     * increase view count
-     */
-    private function incView() {
-        $viewKey = $this->getViewKey();
-
-        if ( Auth::check() ){ //user had login, record user action
-            Cache::put($viewKey.':user:'.Auth::user()->id, time(), Config::get('counter.viewCountDuration'));
-            $this->recordUser('view');
-        } else { //guest. use session
-            session([$viewKey=>time()]);
-        }
-        Cache::increment($this->cacheViewName);
-    }
-
-    /**
      * check whether is liked
      * return true|false
      */
-    private function isLiked(){
-
+    public function isLiked(){
+        $likeKey = $this->getLikeKey();
+        if ( Auth::check() ){
+            $isLiked = $this->user_counters()->where('user_id', Auth::user()->id)->where('action', 'like')->count();
+            return $isLiked;
+        } else {
+            $isLiked = session($likeKey);
+            return !empty($isLiked);
+        }
     }
 
     private function getViewKey(){
         return 'viewed:' . $this->getClassName() . ':' . $this->id;
+    }
+
+    private function getLikeKey(){
+        return 'liked:' . $this->getClassName() . ':' . $this->id;
     }
 
     private function generateName($action){

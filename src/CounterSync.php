@@ -21,8 +21,14 @@ class CounterSync
     {
     }
 
-    public function syncAll($action){
-        $objects = UserCounter::where('action', $action)->get();
+    public function syncAll($className = null){
+        $userCounters = UserCounter::ofClassName($className)->get();
+        $objects = $userCounters->unique(function($item){
+            return $item['class_name'].$item['action'].$item['object_id'];
+        })->values()->all();
+
+        Log::debug($objects);
+
         foreach($objects as $object){
             $this->sync($object);
         }
@@ -32,13 +38,24 @@ class CounterSync
         $cacheName = $this->getCacheName($object);
         try{
             $count = Cache::get($cacheName);
+            Log::debug($cacheName.':'.$count);
             if(!empty($count)){
-                Counter::where('class_name', $object->class_name)
-                        ->where('object_id', $object->object_id)
-                        ->update([$object->action.'_counter'=>$count]);
+                $countType = $object->action.'_counter';
+                Counter::updateOrCreate(
+                    [
+                        'class_name'    => $object->class_name,
+                        'object_id'     => $object->object_id,
+                        'count_date'    => date('Y-m-d')
+                    ],
+                    [
+                        $countType      => $count,
+                        'count_date'    => date('Y-m-d')
+                    ]
+                );
                 return true;
+            }else{
+                return false;
             }
-            return false;
         }catch(\Exception $e){
             Log::error($e->getMessage());
             return false;

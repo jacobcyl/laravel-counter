@@ -38,8 +38,12 @@ class SyncCounter extends Command
      */
     public function handle()
     {
-        $this->info('Display this on the screen');
+        $this->info('Sync counter date to database');
         $counterSync = new CounterSync();
-        $counterSync->syncAll('view');
+        $counterSync->syncAll();
+        /*$classNames = Config::get('counter.syncClasses');
+        foreach($classNames as $className){
+            $counterSync->syncAll($className);
+        }*/
     }
 }

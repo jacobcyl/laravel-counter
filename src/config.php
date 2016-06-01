@@ -11,4 +11,8 @@ return [
      * count between duration if isViewCountEveryTime is set false
      */
     'viewCountDuration' => 60,//count view duration (minutes)
+
+    'syncClasses' => [
+
+    ]
 ];
