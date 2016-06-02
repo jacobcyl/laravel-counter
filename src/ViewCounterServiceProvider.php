@@ -42,7 +42,7 @@ class ViewCounterServiceProvider extends ServiceProvider
 
         // Publish config files
         $this->publishes([
-            __DIR__.'./config.php' => config_path('counter.php'),
+            __DIR__.'/config.php' => config_path('counter.php'),
         ]);
 
         // Register commands
