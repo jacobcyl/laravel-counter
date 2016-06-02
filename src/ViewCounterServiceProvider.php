@@ -69,7 +69,7 @@ class ViewCounterServiceProvider extends ServiceProvider
     private function mergeConfig()
     {
         $this->mergeConfigFrom(
-            __DIR__.'./config.php', 'counter'
+            __DIR__.'/config.php', 'counter'
         );
     }
 
