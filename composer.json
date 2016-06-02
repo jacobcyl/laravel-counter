@@ -1,6 +1,7 @@
 {
-    "name": "jacobcyl/view-counter",
+    "name": "jacobcyl/laravel-counter",
     "description": "view and like counter",
+    "license": "MIT",
     "authors": [
         {
             "name": "jacobcyl",
