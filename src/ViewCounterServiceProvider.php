@@ -7,6 +7,7 @@ namespace Jacobcyl\ViewCounter;
  * Time: 下午 15:04
  */
 use Illuminate\Support\ServiceProvider;
+use Jacobcyl\ViewCounter\Commands\SetViewCounter;
 use Jacobcyl\ViewCounter\Commands\SyncCounter;
 
 class ViewCounterServiceProvider extends ServiceProvider
@@ -47,6 +48,7 @@ class ViewCounterServiceProvider extends ServiceProvider
 
         // Register commands
         $this->commands('command.counter.sync');
+        $this->commands('command.counter.view');
     }
 
     /**
@@ -58,6 +60,10 @@ class ViewCounterServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.counter.sync', function ($app) {
             return new SyncCounter();
+        });
+
+        $this->app->singleton('command.counter.view', function ($app) {
+            return new SetViewCounter();
         });
     }
 

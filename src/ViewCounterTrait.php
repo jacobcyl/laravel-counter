@@ -20,7 +20,7 @@ trait ViewCounterTrait{
     public function view(){
         $viewCount = $this->views_count();
         if ( Config::get('counter.isViewCountEveryTime') ){
-            Cache::increment($this->cacheViewName);
+            Cache::increment($this->cacheViewName, Config::get('counter.viewIncrementAmount', 1));
         }else{
             if (!$this->isViewed()){
                 $this->incView();
@@ -37,7 +37,7 @@ trait ViewCounterTrait{
             } else {
                 session([$likeKey=>time()]);
             }
-            $res = Cache::increment($this->cacheLikeName);
+            $res = Cache::increment($this->cacheLikeName, 1);
         }
         return true;
     }
@@ -53,7 +53,7 @@ trait ViewCounterTrait{
         } else {
             session([$likeKey=>null]);
         }
-        $res = Cache::decrement($this->cacheLikeName);
+        $res = Cache::decrement($this->cacheLikeName, 1);
 
         return true;
     }
@@ -98,7 +98,7 @@ trait ViewCounterTrait{
             function(){
                 $counter = $this->counter();
 
-                return $counter->view_counter ? $counter->view_counter : 0 ;
+                return $counter->view_counter ? $counter->view_counter : Config::get('counter.viewStartNumber', 0) ;
             }
         );
     }
@@ -109,7 +109,7 @@ trait ViewCounterTrait{
             $this->cacheLikeName,
             function(){
                 $counter = $this->counter();
-                return $counter->like_counter ? $counter->like_counter : 0 ;
+                return $counter->like_counter ? $counter->like_counter : Config::get('counter.viewStartNumber', 0) ;
             }
         );
     }
@@ -125,7 +125,7 @@ trait ViewCounterTrait{
             'user_id'       => Auth::user()->id,
             'action'        => $action
         );
-        $this->user_counters()->updateOrCreate(['user_id'=>Auth::user()->id], $data);
+        $this->user_counters()->updateOrCreate($data, $data);
     }
 
     /**
@@ -140,7 +140,7 @@ trait ViewCounterTrait{
         } else { //guest. use session
             session([$viewKey=>time()]);
         }
-        Cache::increment($this->cacheViewName);
+        Cache::increment($this->cacheViewName, Config::get('counter.viewIncrementAmount', 1));
     }
 
     /**

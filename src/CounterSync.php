@@ -59,6 +59,27 @@ class CounterSync
         }
     }
 
+    public function setViewCountBatch($className, $action, $amount){
+        $userCounters = UserCounter::ofClassName($className)->where('action', 'view')->get();
+
+        foreach($userCounters as $object){
+            $cacheName = $this->getCacheName($object);
+            Log::debug($cacheName.' '.$amount);
+            switch($action){
+                case 'plus':
+                    $count = Cache::increment($cacheName, $amount);
+                    break;
+                case 'minus':
+                    $count = Cache::decrement($cacheName, $amount);
+                    if($count<0)
+                        Cache::put($cacheName, 0);
+                    break;
+            }
+        }
+
+        return false;
+    }
+
     private function getCacheName($object){
         return $object->class_name . ':' . $object->object_id . ':' . $object->action . 's';
     }

@@ -8,11 +8,17 @@ return [
     'isViewCountEveryTime' => false,
 
     /**
-     * count between duration if isViewCountEveryTime is set false
+     * count between duration (minutes) if isViewCountEveryTime is set false
      */
-    'viewCountDuration' => 60,//count view duration (minutes)
+    'viewCountDuration' => 60,
 
-    'syncClasses' => [
+    /**
+     * view incrementing amount
+     */
+    'viewIncrementAmount' => 1,
 
-    ]
+    /**
+     * number of a object start to count (init object counter)
+     */
+    'viewStartNumber' => 0,
 ];
