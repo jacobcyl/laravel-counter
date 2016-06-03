@@ -23,6 +23,11 @@ return [
     'viewStartNumber' => 0,
 
     /**
+     * number of a object start to count (init object counter)
+     */
+    'likeStartNumber' => 0,
+
+    /**
      * regular check threshold to sync user_counter table
      */
     'checkThreshold' => 20,

@@ -117,7 +117,7 @@ trait ViewCounterTrait{
             $this->cacheLikeName,
             function(){
                 $counter = $this->counter();
-                return $counter->like_counter ? $counter->like_counter : Config::get('counter.viewStartNumber', 0) ;
+                return $counter->like_counter ? $counter->like_counter : Config::get('counter.likeStartNumber', 0) ;
             }
         );
     }
