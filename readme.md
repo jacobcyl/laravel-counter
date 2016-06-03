@@ -26,7 +26,7 @@ edit app/Console/Kernel.php file's schedule method.add **counter:sync** command:
     }
 ```
 
-> run crontab -e  then add follow
+> run **crontab -e**  then add follow
 
     * * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1
     
