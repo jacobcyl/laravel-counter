@@ -1,5 +1,6 @@
 {
     "name": "jacobcyl/laravel-counter",
+    "keywords": ["laravel", "counter", "laravel counter", "views counter"]
     "description": "view and like counter",
     "license": "MIT",
     "authors": [
