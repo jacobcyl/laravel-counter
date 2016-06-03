@@ -17,15 +17,23 @@ trait ViewCounterTrait{
     protected $cacheViewName;
     protected $cacheLikeName;
 
+    /**
+     * count the object`s view
+     * @return views_count
+     */
     public function view(){
-        $viewCount = $this->views_count();
+        $viewsCount = $this->views_count();
+
         if ( Config::get('counter.isViewCountEveryTime') ){
-            Cache::increment($this->cacheViewName, Config::get('counter.viewIncrementAmount', 1));
-        }else{
-            if (!$this->isViewed()){
-                $this->incView();
-            }
+            //$viewCount = Cache::increment($this->cacheViewName, Config::get('counter.viewIncrementAmount', 1));
+            $viewsCount = $this->incView();
+            //$this->setViewed();
+        }else if ( !$this->isViewed() ){
+            $viewsCount = $this->incView();
+            //$this->setViewed();
         }
+
+        return $viewsCount;
     }
 
     public function like(){
@@ -132,15 +140,34 @@ trait ViewCounterTrait{
      * increase view count
      */
     private function incView() {
-        $viewKey = $this->getViewKey();
-
-        if ( Auth::check() ){ //user had login, record user action
-            Cache::put($viewKey.':user:'.Auth::user()->id, time(), Config::get('counter.viewCountDuration'));
-            $this->recordUser('view');
-        } else { //guest. use session
-            session([$viewKey=>time()]);
+        if ( !$this->cacheViewName ){
+            $viewsCount = $this->views_count();
         }
-        Cache::increment($this->cacheViewName, Config::get('counter.viewIncrementAmount', 1));
+        $viewsCount = Cache::increment($this->cacheViewName, Config::get('counter.viewIncrementAmount', 1));
+        $this->setViewed();
+        return $viewsCount;
+    }
+
+    /**
+     * Set the user has viewed
+     *
+     * @return bool
+     */
+    private function setViewed(){
+        if ( !$this->isViewed() ){
+            $viewKey = $this->getViewKey();
+
+            if ( Auth::check() ){ //user had login, record user action
+                Cache::put($viewKey.':user:'.Auth::user()->id, time(), Config::get('counter.viewCountDuration'));
+                $this->recordUser('view');
+            } else { //guest. use session
+                session([$viewKey=>time()]);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
