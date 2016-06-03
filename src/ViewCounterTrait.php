@@ -145,6 +145,8 @@ trait ViewCounterTrait{
         }
         $viewsCount = Cache::increment($this->cacheViewName, Config::get('counter.viewIncrementAmount', 1));
         $this->setViewed();
+
+        $this->regularCheck($viewsCount, 'view');
         return $viewsCount;
     }
 
@@ -183,7 +185,7 @@ trait ViewCounterTrait{
         } else {
             $time = session($viewKey);
             if ( !empty($time) ) {
-                $viewed = (time() - $time) < Config::get('counter.viewCountDuration') * 60;
+                $viewed = (time() - $time) < config('counter.viewCountDuration') * 60;
             } else {
                 $viewed = false;
             }
@@ -203,6 +205,15 @@ trait ViewCounterTrait{
         } else {
             $isLiked = session($likeKey);
             return !empty($isLiked);
+        }
+    }
+
+    private function regularCheck($count, $action){
+        if ( Auth::check() ){
+            $threshold = config('counter.checkThreshold', 10);
+            if ( $count >= $threshold && $count % $threshold == 0  ){
+                $this->recordUser($action);
+            }
         }
     }
 

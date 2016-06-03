@@ -21,4 +21,9 @@ return [
      * number of a object start to count (init object counter)
      */
     'viewStartNumber' => 0,
+
+    /**
+     * regular check threshold to sync user_counter table
+     */
+    'checkThreshold' => 20,
 ];
